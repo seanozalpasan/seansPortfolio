@@ -1,0 +1,61 @@
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+backend/.env
+frontend/.env
+
+# Production builds
+dist/
+build/
+frontend/dist/
+frontend/build/
+backend/dist/
+*.sh
+*.svg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Uploads (for local dev)
+backend/uploads/
+backend/temp/
+
+# Development server PIDs
+.backend.pid
+.frontend.pid
+
+#Misc
+frontend/README.md
+frontend/eslint.config.js
+frontend/vite.config.js
+
+*.md
+!README.md

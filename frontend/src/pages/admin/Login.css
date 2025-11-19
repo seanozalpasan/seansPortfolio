@@ -1,0 +1,131 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  font-family: 'Fira Code', monospace;
+}
+
+.login-box {
+  background: #333333;
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 400px;
+  border: 2px solid #ff9955;
+}
+
+.login-box h1 {
+  color: #ff9955;
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  text-align: center;
+}
+
+.login-subtitle {
+  color: #ffffff;
+  margin: 0 0 2rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #ffbb88;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  background: #2a2a2a;
+  border: 2px solid #444444;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  font-family: 'Fira Code', monospace;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff9955;
+}
+
+.form-group input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid #ff5252;
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: #ff8888;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-button {
+  background: #ff9955;
+  color: #2a2a2a;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.login-button:hover:not(:disabled) {
+  background: #ffbb88;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 153, 85, 0.3);
+}
+
+.login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  color: #888888;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+  }
+
+  .login-box h1 {
+    font-size: 1.5rem;
+  }
+}

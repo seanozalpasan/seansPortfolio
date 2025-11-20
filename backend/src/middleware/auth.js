@@ -63,6 +63,44 @@ export const authorize = (...roles) => {
   };
 };
 
+// Optional auth - sets req.user if token is present, but doesn't reject if not
+export const optionalAuth = async (req, res, next) => {
+  try {
+    let token;
+
+    // Check for token in Authorization header
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    // If no token, just continue without setting req.user
+    if (!token) {
+      return next();
+    }
+
+    try {
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Get user from database
+      const user = await User.findById(decoded.id).select('-password');
+
+      if (user) {
+        // Attach user to request object
+        req.user = user;
+      }
+
+      next();
+    } catch (error) {
+      // Token is invalid, but don't reject - just continue without req.user
+      next();
+    }
+  } catch (error) {
+    // Server error, but don't reject - just continue
+    next();
+  }
+};
+
 // Generate JWT token
 export const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {

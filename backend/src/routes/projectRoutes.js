@@ -8,13 +8,13 @@ import {
   reorderProjects,
   togglePublish
 } from '../controllers/projectController.js';
-import { protect, authorize } from '../middleware/auth.js';
+import { protect, authorize, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public routes
-router.get('/', getProjects);
-router.get('/:id', getProject);
+// Public routes (but with optional auth to show unpublished projects to admins)
+router.get('/', optionalAuth, getProjects);
+router.get('/:id', optionalAuth, getProject);
 
 // Protected routes (Admin only)
 router.post('/', protect, authorize('admin'), createProject);

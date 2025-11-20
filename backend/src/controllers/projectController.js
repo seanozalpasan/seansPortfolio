@@ -18,11 +18,19 @@ export const getProjects = async (req, res) => {
     // Build query
     const query = {};
 
+    // Debug logging
+    console.log('GET /api/projects - User:', req.user ? { id: req.user._id, role: req.user.role } : 'No user');
+    console.log('GET /api/projects - Query params:', { published, category, featured, sort });
+
     // If not admin, only show published projects
     if (!req.user || req.user.role !== 'admin') {
       query.published = true;
+      console.log('GET /api/projects - Not admin, filtering for published only');
     } else if (published !== undefined) {
       query.published = published === 'true';
+      console.log('GET /api/projects - Admin with published filter:', published);
+    } else {
+      console.log('GET /api/projects - Admin, showing all projects');
     }
 
     if (category) {
@@ -49,6 +57,9 @@ export const getProjects = async (req, res) => {
       .skip(parseInt(skip));
 
     const total = await Project.countDocuments(query);
+
+    console.log('GET /api/projects - Final query:', query);
+    console.log('GET /api/projects - Found projects:', projects.length);
 
     res.status(200).json({
       success: true,

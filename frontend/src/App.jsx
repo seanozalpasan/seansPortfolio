@@ -10,9 +10,7 @@ import GalleriesPage from './pages/admin/GalleriesPage';
 import ResumePage from './pages/admin/ResumePage';
 import ContactsPage from './pages/admin/ContactsPage';
 import AnalyticsPage from './pages/admin/AnalyticsPage';
-
-// Placeholder components for admin sections (we'll build these next)
-const ProjectsPage = () => <div style={{ color: '#fff', padding: '2rem' }}><h1>Projects Manager</h1><p>Coming soon...</p></div>;
+import ProjectsPage from './pages/admin/ProjectsPage';
 
 function App() {
   return (

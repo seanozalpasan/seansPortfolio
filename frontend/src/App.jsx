@@ -8,10 +8,10 @@ import Dashboard from './pages/admin/Dashboard';
 import Overview from './pages/admin/Overview';
 import GalleriesPage from './pages/admin/GalleriesPage';
 import ResumePage from './pages/admin/ResumePage';
+import ContactsPage from './pages/admin/ContactsPage';
 
 // Placeholder components for admin sections (we'll build these next)
 const ProjectsPage = () => <div style={{ color: '#fff', padding: '2rem' }}><h1>Projects Manager</h1><p>Coming soon...</p></div>;
-const ContactsPage = () => <div style={{ color: '#fff', padding: '2rem' }}><h1>Contacts Inbox</h1><p>Coming soon...</p></div>;
 const AnalyticsPage = () => <div style={{ color: '#fff', padding: '2rem' }}><h1>Analytics Dashboard</h1><p>Coming soon...</p></div>;
 
 function App() {

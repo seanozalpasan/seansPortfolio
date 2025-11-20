@@ -3,7 +3,8 @@ import rateLimit from 'express-rate-limit';
 import {
   trackEvent,
   getStats,
-  getRecentEvents
+  getRecentEvents,
+  clearAnalytics
 } from '../controllers/analyticsController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -28,5 +29,6 @@ router.post('/track', trackingLimiter, trackEvent);
 // Protected routes (Admin only)
 router.get('/stats', protect, authorize('admin'), getStats);
 router.get('/events', protect, authorize('admin'), getRecentEvents);
+router.delete('/clear', protect, authorize('admin'), clearAnalytics);
 
 export default router;

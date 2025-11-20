@@ -7,6 +7,33 @@ const hashIP = (ip) => {
   return crypto.createHash('sha256').update(ip + salt).digest('hex');
 };
 
+// Helper to get country from IP address using geojs.io
+const getCountryFromIP = async (ip) => {
+  try {
+    // Don't lookup localhost IPs
+    if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('::ffff:127.')) {
+      return 'Local';
+    }
+
+    // Clean IPv6-wrapped IPv4
+    const cleanIP = ip.replace('::ffff:', '');
+
+    const response = await fetch(`https://get.geojs.io/v1/ip/country/${cleanIP}.json`, {
+      timeout: 2000 // 2 second timeout
+    });
+
+    if (!response.ok) {
+      return 'Unknown';
+    }
+
+    const data = await response.json();
+    return data.country || 'Unknown';
+  } catch (error) {
+    console.error('GeoIP lookup error:', error.message);
+    return 'Unknown';
+  }
+};
+
 // Helper to detect device type from user agent
 const detectDevice = (userAgent) => {
   if (!userAgent) return 'unknown';
@@ -59,6 +86,9 @@ export const trackEvent = async (req, res) => {
     const ipAddress = req.ip || req.connection.remoteAddress;
     const userAgent = req.get('User-Agent');
 
+    // Get country from IP (async)
+    const country = await getCountryFromIP(ipAddress);
+
     const analytics = await Analytics.create({
       type,
       page,
@@ -70,7 +100,8 @@ export const trackEvent = async (req, res) => {
         browser: detectBrowser(userAgent),
         os: detectOS(userAgent),
         device: detectDevice(userAgent),
-        referrer: req.get('Referer') || req.get('Referrer') || 'direct'
+        referrer: req.get('Referer') || req.get('Referrer') || 'direct',
+        country
       },
       duration: duration || null
     });
@@ -176,6 +207,21 @@ export const getStats = async (req, res) => {
       }}
     ]);
 
+    // Get country breakdown
+    const countryBreakdown = await Analytics.aggregate([
+      { $match: query },
+      { $group: {
+        _id: '$visitorInfo.country',
+        count: { $sum: 1 }
+      }},
+      { $project: {
+        country: '$_id',
+        count: 1
+      }},
+      { $sort: { count: -1 } },
+      { $limit: 10 } // Top 10 countries
+    ]);
+
     res.status(200).json({
       success: true,
       data: {
@@ -187,7 +233,8 @@ export const getStats = async (req, res) => {
           date: d._id,
           views: d.views
         })),
-        browserBreakdown
+        browserBreakdown,
+        countryBreakdown
       }
     });
   } catch (error) {
@@ -225,6 +272,27 @@ export const getRecentEvents = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch events'
+    });
+  }
+};
+
+// @desc    Clear all analytics data
+// @route   DELETE /api/analytics/clear
+// @access  Private (Admin)
+export const clearAnalytics = async (req, res) => {
+  try {
+    const result = await Analytics.deleteMany({});
+
+    res.status(200).json({
+      success: true,
+      message: `Deleted ${result.deletedCount} analytics entries`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Clear analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to clear analytics'
     });
   }
 };

@@ -14,9 +14,9 @@ const router = express.Router();
 
 // Public routes
 router.get('/', getResume);
+router.get('/info', getResumeInfo);
 
 // Protected routes (Admin only)
-router.get('/info', protect, authorize('admin'), getResumeInfo);
 router.get('/versions', protect, authorize('admin'), getResumeVersions);
 router.post(
   '/upload',

@@ -40,8 +40,12 @@ if (process.env.NODE_ENV === 'development') {
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  max: 500, // Limit each IP to 500 requests per 15 minutes
+  message: 'Too many requests from this IP, please try again later.',
+  skip: (req) => {
+    // Skip rate limiting for authenticated admin users
+    return req.headers.authorization?.startsWith('Bearer');
+  }
 });
 
 app.use('/api/', limiter);

@@ -61,6 +61,7 @@ export const galleryAPI = {
   getAll: () => api.get('/galleries'),
   getByName: (name) => api.get(`/galleries/${name}`),
   create: (data) => api.post('/galleries', data),
+  update: (name, data) => api.put(`/galleries/${name}`, data),
   delete: (name) => api.delete(`/galleries/${name}`),
   addImages: (name, images) => api.post(`/galleries/${name}/images`, { images }),
   updateImage: (name, imageId, data) => api.put(`/galleries/${name}/images/${imageId}`, data),

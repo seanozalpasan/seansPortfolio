@@ -15,6 +15,11 @@ const imageInGallerySchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  rotation: {
+    type: Number,
+    default: 0,
+    enum: [0, 90, 180, 270]
+  },
   metadata: {
     dateTaken: Date,
     location: String,

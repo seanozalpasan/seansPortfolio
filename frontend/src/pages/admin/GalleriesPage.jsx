@@ -14,6 +14,8 @@ function GalleriesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newGalleryName, setNewGalleryName] = useState('');
   const [newGalleryDisplayName, setNewGalleryDisplayName] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editGalleryData, setEditGalleryData] = useState({ name: '', displayName: '', description: '' });
 
   // Fetch all galleries on mount
   useEffect(() => {
@@ -90,6 +92,38 @@ function GalleriesPage() {
       fetchGalleries();
     } catch (err) {
       setError('Failed to delete gallery: ' + err.message);
+    }
+  };
+
+  const openEditModal = (gallery) => {
+    setEditGalleryData({
+      name: gallery.name,
+      displayName: gallery.displayName,
+      description: gallery.description || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditGallery = async (e) => {
+    e.preventDefault();
+
+    if (!editGalleryData.displayName) {
+      setError('Display name is required');
+      return;
+    }
+
+    try {
+      setError('');
+      await galleryAPI.update(editGalleryData.name, {
+        displayName: editGalleryData.displayName,
+        description: editGalleryData.description
+      });
+
+      setSuccess('Gallery updated successfully!');
+      setShowEditModal(false);
+      fetchGalleries();
+    } catch (err) {
+      setError('Failed to update gallery: ' + err.response?.data?.message || err.message);
     }
   };
 
@@ -204,6 +238,25 @@ function GalleriesPage() {
     }
   };
 
+  const handleRotate = async (imageId, direction) => {
+    try {
+      setError('');
+      const image = currentGallery.images.find(img => img.imageId === imageId);
+      if (!image) return;
+
+      const currentRotation = image.rotation || 0;
+      const rotationChange = direction === 'left' ? -90 : 90;
+      let newRotation = (currentRotation + rotationChange) % 360;
+      if (newRotation < 0) newRotation += 360;
+
+      await galleryAPI.updateImage(activeGallery, imageId, { rotation: newRotation });
+      setSuccess('Image rotated');
+      fetchGalleryDetails(activeGallery);
+    } catch (err) {
+      setError('Failed to rotate image: ' + err.message);
+    }
+  };
+
   if (loading && !currentGallery) {
     return (
       <div className="galleries-page">
@@ -233,6 +286,16 @@ function GalleriesPage() {
                   {currentGallery.images?.length || 0}
                 </span>
               )}
+            </button>
+            <button
+              className="edit-gallery-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                openEditModal(gallery);
+              }}
+              title="Edit gallery"
+            >
+              ✎
             </button>
             <button
               className="delete-gallery-btn"
@@ -289,6 +352,53 @@ function GalleriesPage() {
         </div>
       )}
 
+      {/* Edit Gallery Modal */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Edit Gallery</h2>
+            <form onSubmit={handleEditGallery}>
+              <div className="form-group">
+                <label htmlFor="edit-gallery-name">Gallery Name (URL-friendly)</label>
+                <input
+                  id="edit-gallery-name"
+                  type="text"
+                  value={editGalleryData.name}
+                  disabled
+                  style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                />
+                <small>Gallery name cannot be changed</small>
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-gallery-display-name">Display Name</label>
+                <input
+                  id="edit-gallery-display-name"
+                  type="text"
+                  value={editGalleryData.displayName}
+                  onChange={(e) => setEditGalleryData({ ...editGalleryData, displayName: e.target.value })}
+                  placeholder="e.g., Costa Rica 2024, New York Trip"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-gallery-description">Description (optional)</label>
+                <input
+                  id="edit-gallery-description"
+                  type="text"
+                  value={editGalleryData.description}
+                  onChange={(e) => setEditGalleryData({ ...editGalleryData, description: e.target.value })}
+                  placeholder="e.g., My sailing journey"
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="submit" className="btn-create">Update Gallery</button>
+                <button type="button" className="btn-cancel" onClick={() => setShowEditModal(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       {error && (
         <div className="message error">
@@ -334,6 +444,7 @@ function GalleriesPage() {
                       src={`http://localhost:5001/api/images/${image.imageId}`}
                       alt={image.caption || 'Gallery image'}
                       loading="lazy"
+                      style={{ transform: `rotate(${image.rotation || 0}deg)` }}
                     />
                   </div>
 
@@ -398,6 +509,20 @@ function GalleriesPage() {
                       title="Move down"
                     >
                       ↓
+                    </button>
+                    <button
+                      onClick={() => handleRotate(image.imageId, 'left')}
+                      className="btn-rotate"
+                      title="Rotate left"
+                    >
+                      ↺
+                    </button>
+                    <button
+                      onClick={() => handleRotate(image.imageId, 'right')}
+                      className="btn-rotate"
+                      title="Rotate right"
+                    >
+                      ↻
                     </button>
                     <button
                       onClick={() => handleDeleteImage(image.imageId)}

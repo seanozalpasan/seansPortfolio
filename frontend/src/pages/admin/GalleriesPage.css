@@ -72,6 +72,35 @@
   color: var(--color-primary-hover);
 }
 
+.edit-gallery-btn {
+  position: absolute;
+  top: -5px;
+  right: 25px;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.gallery-tab-wrapper:hover .edit-gallery-btn {
+  opacity: 1;
+}
+
+.edit-gallery-btn:hover {
+  background-color: var(--color-primary-hover);
+  transform: scale(1.1);
+}
+
 .delete-gallery-btn {
   position: absolute;
   top: -5px;
@@ -474,6 +503,26 @@
 .btn-reorder:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+.btn-rotate {
+  background: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.btn-rotate:hover {
+  background: var(--color-border);
+  color: var(--color-primary);
+}
+
+.btn-rotate:active {
+  transform: scale(0.95);
 }
 
 .btn-delete {

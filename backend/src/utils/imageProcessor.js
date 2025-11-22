@@ -15,10 +15,14 @@ export const processImage = async (buffer, options = {}) => {
   } = options;
 
   try {
-    let pipeline = sharp(buffer);
+    // Disable automatic EXIF rotation to preserve original orientation
+    let pipeline = sharp(buffer, { failOnError: false });
 
     // Get image metadata
     const metadata = await pipeline.metadata();
+
+    // Preserve original orientation - do not auto-rotate based on EXIF
+    pipeline = pipeline.rotate(0);
 
     // Resize if needed (maintain aspect ratio)
     if (metadata.width > maxWidth || metadata.height > maxHeight) {

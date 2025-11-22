@@ -7,6 +7,7 @@ import {
   updateGalleryImage,
   removeImageFromGallery,
   reorderGalleryImages,
+  updateGalleryMetadata,
   updateGallerySettings
 } from '../controllers/galleryController.js';
 import { protect, authorize } from '../middleware/auth.js';
@@ -19,6 +20,7 @@ router.get('/:name', getGalleries);
 
 // Protected routes (Admin only)
 router.post('/', protect, authorize('admin'), createGallery);
+router.put('/:name', protect, authorize('admin'), updateGalleryMetadata);
 router.delete('/:name', protect, authorize('admin'), deleteGallery);
 router.post('/:name/images', protect, authorize('admin'), addImagesToGallery);
 router.put('/:name/images/:imageId', protect, authorize('admin'), updateGalleryImage);

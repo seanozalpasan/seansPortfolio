@@ -1,0 +1,134 @@
+.home-landing {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background-dark);
+  padding: 2rem;
+}
+
+.landing-container {
+  max-width: 1200px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+/* Left Side - Navigation Links */
+.landing-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.nav-card {
+  background-color: var(--color-background-alt);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.nav-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(255, 153, 85, 0.3);
+}
+
+.nav-card h2 {
+  color: var(--color-text);
+  font-size: 2rem;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.nav-card:hover h2 {
+  color: var(--color-primary);
+}
+
+/* Right Side - Profile Picture */
+.landing-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-image {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 12px;
+  border: 3px solid var(--color-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.profile-image:hover {
+  border-color: var(--color-primary);
+  transform: scale(1.02);
+  box-shadow: 0 12px 48px rgba(255, 153, 85, 0.2);
+}
+
+/* Mobile Responsive */
+@media (max-width: 968px) {
+  .landing-container {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .landing-nav {
+    order: 2;
+  }
+
+  .landing-profile {
+    order: 1;
+  }
+
+  .profile-image {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-landing {
+    padding: 1.5rem;
+  }
+
+  .landing-nav {
+    gap: 1.5rem;
+  }
+
+  .nav-card {
+    padding: 2.5rem 1.5rem;
+    min-height: 120px;
+  }
+
+  .nav-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .profile-image {
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-card {
+    min-height: 100px;
+  }
+
+  .nav-card h2 {
+    font-size: 1.75rem;
+  }
+}

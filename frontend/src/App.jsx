@@ -1,6 +1,17 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+
+// Layout Components
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+
+// Public Pages
+import Home from './pages/public/Home';
+import About from './pages/public/About';
+import Projects from './pages/public/Projects';
+import Hobbies from './pages/public/Hobbies';
+import Contact from './pages/public/Contact';
 
 // Admin Pages
 import Login from './pages/admin/Login';
@@ -12,13 +23,34 @@ import ContactsPage from './pages/admin/ContactsPage';
 import AnalyticsPage from './pages/admin/AnalyticsPage';
 import ProjectsPage from './pages/admin/ProjectsPage';
 
+// Public Layout wrapper with Navbar and Footer
+const PublicLayout = () => {
+  return (
+    <>
+      <Navbar />
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Outlet />
+      </main>
+      <Footer />
+    </>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Redirect root to admin */}
-          <Route path="/" element={<Navigate to="/admin" replace />} />
+          {/* Landing Page - NO Navbar/Footer */}
+          <Route path="/" element={<Home />} />
+
+          {/* Public Routes with Layout */}
+          <Route element={<PublicLayout />}>
+            <Route path="/about" element={<About />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/hobbies" element={<Hobbies />} />
+            <Route path="/contact" element={<Contact />} />
+          </Route>
 
           {/* Admin Login */}
           <Route path="/admin/login" element={<Login />} />
@@ -40,8 +72,8 @@ function App() {
             <Route path="analytics" element={<AnalyticsPage />} />
           </Route>
 
-          {/* 404 */}
-          <Route path="*" element={<Navigate to="/admin" replace />} />
+          {/* 404 - Redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

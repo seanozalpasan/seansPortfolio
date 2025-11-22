@@ -194,7 +194,7 @@ export const addImagesToGallery = async (req, res) => {
 export const updateGalleryImage = async (req, res) => {
   try {
     const { name, imageId } = req.params;
-    const { caption, order, metadata } = req.body;
+    const { caption, order, rotation, metadata } = req.body;
 
     const gallery = await Gallery.findOne({ name: name.toLowerCase() });
 
@@ -219,6 +219,7 @@ export const updateGalleryImage = async (req, res) => {
     // Update fields
     if (caption !== undefined) gallery.images[imageIndex].caption = caption;
     if (order !== undefined) gallery.images[imageIndex].order = order;
+    if (rotation !== undefined) gallery.images[imageIndex].rotation = rotation;
     if (metadata !== undefined) gallery.images[imageIndex].metadata = { ...gallery.images[imageIndex].metadata, ...metadata };
 
     await gallery.save();
@@ -326,6 +327,43 @@ export const reorderGalleryImages = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to reorder images'
+    });
+  }
+};
+
+// @desc    Update gallery metadata (displayName, description)
+// @route   PUT /api/galleries/:name
+// @access  Private (Admin)
+export const updateGalleryMetadata = async (req, res) => {
+  try {
+    const { name } = req.params;
+    const { displayName, description } = req.body;
+
+    const gallery = await Gallery.findOne({ name: name.toLowerCase() });
+
+    if (!gallery) {
+      return res.status(404).json({
+        success: false,
+        message: 'Gallery not found'
+      });
+    }
+
+    // Update metadata
+    if (displayName !== undefined) gallery.displayName = displayName;
+    if (description !== undefined) gallery.description = description;
+
+    await gallery.save();
+
+    res.status(200).json({
+      success: true,
+      data: gallery,
+      message: 'Gallery updated successfully'
+    });
+  } catch (error) {
+    console.error('Update gallery error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update gallery'
     });
   }
 };

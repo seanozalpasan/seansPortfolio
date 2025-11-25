@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { resumeAPI } from '../../services/api';
+import { resumeAPI, analyticsAPI } from '../../services/api';
 import './Resume.css';
 
 const Resume = () => {
@@ -28,6 +28,30 @@ const Resume = () => {
     };
 
     fetchResumeInfo();
+  }, []);
+
+  // Track page view
+  useEffect(() => {
+    const trackPageView = async () => {
+      try {
+        // Get or create session ID
+        let sessionId = sessionStorage.getItem('sessionId');
+        if (!sessionId) {
+          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('sessionId', sessionId);
+        }
+
+        await analyticsAPI.track({
+          type: 'pageview',
+          page: '/resume',
+          sessionId
+        });
+      } catch (error) {
+        console.error('Analytics tracking error:', error);
+      }
+    };
+
+    trackPageView();
   }, []);
 
   const handleDownload = async () => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { galleryAPI, imageAPI } from '../../services/api';
+import { galleryAPI, imageAPI, analyticsAPI } from '../../services/api';
 import './Hobbies.css';
 
 const Hobbies = () => {
@@ -29,6 +29,30 @@ const Hobbies = () => {
     };
 
     fetchGalleries();
+  }, []);
+
+  // Track page view
+  useEffect(() => {
+    const trackPageView = async () => {
+      try {
+        // Get or create session ID
+        let sessionId = sessionStorage.getItem('sessionId');
+        if (!sessionId) {
+          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('sessionId', sessionId);
+        }
+
+        await analyticsAPI.track({
+          type: 'pageview',
+          page: '/hobbies',
+          sessionId
+        });
+      } catch (error) {
+        console.error('Analytics tracking error:', error);
+      }
+    };
+
+    trackPageView();
   }, []);
 
   const openGalleryModal = (gallery) => {

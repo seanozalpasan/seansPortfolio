@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { resumeAPI, contactAPI } from '../../services/api';
+import { resumeAPI, contactAPI, analyticsAPI } from '../../services/api';
 import './Contact.css';
 
 const Contact = () => {
@@ -29,6 +29,30 @@ const Contact = () => {
     };
 
     fetchResumeInfo();
+  }, []);
+
+  // Track page view
+  useEffect(() => {
+    const trackPageView = async () => {
+      try {
+        // Get or create session ID
+        let sessionId = sessionStorage.getItem('sessionId');
+        if (!sessionId) {
+          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('sessionId', sessionId);
+        }
+
+        await analyticsAPI.track({
+          type: 'pageview',
+          page: '/contact',
+          sessionId
+        });
+      } catch (error) {
+        console.error('Analytics tracking error:', error);
+      }
+    };
+
+    trackPageView();
   }, []);
 
   const handleChange = (e) => {

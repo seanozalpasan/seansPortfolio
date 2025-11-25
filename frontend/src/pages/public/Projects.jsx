@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { projectAPI, imageAPI } from '../../services/api';
+import { projectAPI, imageAPI, analyticsAPI } from '../../services/api';
 import './Projects.css';
 
 const Projects = () => {
@@ -40,6 +40,30 @@ const Projects = () => {
       );
     }
   }, [selectedCategory, projects]);
+
+  // Track page view
+  useEffect(() => {
+    const trackPageView = async () => {
+      try {
+        // Get or create session ID
+        let sessionId = sessionStorage.getItem('sessionId');
+        if (!sessionId) {
+          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('sessionId', sessionId);
+        }
+
+        await analyticsAPI.track({
+          type: 'pageview',
+          page: '/projects',
+          sessionId
+        });
+      } catch (error) {
+        console.error('Analytics tracking error:', error);
+      }
+    };
+
+    trackPageView();
+  }, []);
 
   // Get unique categories from projects
   const categories = ['all', ...new Set(projects.map((p) => p.category).filter(Boolean))];

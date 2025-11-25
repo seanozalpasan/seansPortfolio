@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { galleryAPI, imageAPI } from '../../services/api';
+import { galleryAPI, imageAPI, analyticsAPI } from '../../services/api';
 import './GalleryViewer.css';
 
 const GalleryViewer = () => {
@@ -37,6 +37,32 @@ const GalleryViewer = () => {
 
     if (name) {
       fetchGallery();
+    }
+  }, [name]);
+
+  // Track page view
+  useEffect(() => {
+    const trackPageView = async () => {
+      try {
+        // Get or create session ID
+        let sessionId = sessionStorage.getItem('sessionId');
+        if (!sessionId) {
+          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('sessionId', sessionId);
+        }
+
+        await analyticsAPI.track({
+          type: 'pageview',
+          page: `/gallery/${name}`,
+          sessionId
+        });
+      } catch (error) {
+        console.error('Analytics tracking error:', error);
+      }
+    };
+
+    if (name) {
+      trackPageView();
     }
   }, [name]);
 

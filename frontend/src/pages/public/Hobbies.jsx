@@ -79,6 +79,41 @@ const Hobbies = () => {
     }
   };
 
+  // Preload adjacent images for instant transitions
+  useEffect(() => {
+    if (!selectedGallery) return;
+
+    const preloadImages = [];
+
+    // Preload next image
+    if (currentImageIndex < selectedGallery.images.length - 1) {
+      const nextImage = new Image();
+      nextImage.src = imageAPI.getUrl(selectedGallery.images[currentImageIndex + 1].imageId);
+      preloadImages.push(nextImage);
+    }
+
+    // Preload previous image
+    if (currentImageIndex > 0) {
+      const prevImage = new Image();
+      prevImage.src = imageAPI.getUrl(selectedGallery.images[currentImageIndex - 1].imageId);
+      preloadImages.push(prevImage);
+    }
+
+    // Preload one more ahead for smoother experience
+    if (currentImageIndex < selectedGallery.images.length - 2) {
+      const nextNextImage = new Image();
+      nextNextImage.src = imageAPI.getUrl(selectedGallery.images[currentImageIndex + 2].imageId);
+      preloadImages.push(nextNextImage);
+    }
+
+    return () => {
+      // Cleanup: cancel any pending image loads
+      preloadImages.forEach(img => {
+        img.src = '';
+      });
+    };
+  }, [selectedGallery, currentImageIndex]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {

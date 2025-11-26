@@ -27,6 +27,8 @@ export const getResume = async (req, res) => {
     res.set('Content-Type', 'application/pdf');
     res.set('Content-Disposition', `inline; filename="${file.filename}"`);
     res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+    res.set('X-Frame-Options', 'ALLOW-FROM http://localhost:5173'); // Allow iframe from frontend
+    res.set('Content-Security-Policy', "frame-ancestors 'self' http://localhost:5173"); // Modern alternative
 
     // Stream file from GridFS
     const downloadStream = streamFromGridFS(file._id, 'resume');

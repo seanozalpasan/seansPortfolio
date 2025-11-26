@@ -3,7 +3,16 @@ import { initGridFS } from '../utils/gridfs.js';
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    // Set DNS order preference to IPv4
+    if (typeof require !== 'undefined') {
+      const dns = require('dns');
+      dns.setDefaultResultOrder?.('ipv4first');
+    }
+
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database: ${conn.connection.name}`);
@@ -30,6 +39,7 @@ const connectDB = async () => {
     return conn;
   } catch (error) {
     console.error('❌ Error connecting to MongoDB:', error.message);
+    console.error('Full error:', error);
     process.exit(1);
   }
 };

@@ -1,6 +1,7 @@
 import { Contact } from '../models/index.js';
 import mongoose from 'mongoose';
 import xss from 'xss';
+import { sendContactNotification } from '../utils/emailService.js';
 
 // @desc    Submit contact form
 // @route   POST /api/contact
@@ -46,8 +47,21 @@ export const submitContact = async (req, res) => {
       status: 'new'
     });
 
-    // TODO: Send email notification when SMTP is configured
-    // For now, just save to database
+    // Send email notification (async, don't wait for it)
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      sendContactNotification({
+        name: sanitizedName,
+        email: sanitizedEmail,
+        subject: sanitizedSubject,
+        message: sanitizedMessage,
+        ipAddress
+      }).catch(error => {
+        console.error('Failed to send email notification:', error);
+        // Don't fail the request if email fails
+      });
+    } else {
+      console.warn('SMTP not configured - email notification skipped');
+    }
 
     res.status(201).json({
       success: true,

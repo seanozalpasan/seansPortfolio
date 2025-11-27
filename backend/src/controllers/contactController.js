@@ -1,5 +1,6 @@
 import { Contact } from '../models/index.js';
 import mongoose from 'mongoose';
+import xss from 'xss';
 
 // @desc    Submit contact form
 // @route   POST /api/contact
@@ -16,15 +17,30 @@ export const submitContact = async (req, res) => {
       });
     }
 
+    // Sanitize inputs to prevent XSS attacks
+    const sanitizedName = xss(name.trim());
+    const sanitizedEmail = xss(email.trim().toLowerCase());
+    const sanitizedSubject = subject ? xss(subject.trim()) : '(No subject)';
+    const sanitizedMessage = xss(message.trim());
+
+    // Validate email format
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(sanitizedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+
     // Get IP address
     const ipAddress = req.ip || req.connection.remoteAddress;
 
     // Create contact
     const contact = await Contact.create({
-      name,
-      email,
-      subject: subject || '(No subject)',
-      message,
+      name: sanitizedName,
+      email: sanitizedEmail,
+      subject: sanitizedSubject,
+      message: sanitizedMessage,
       ipAddress,
       userAgent: req.get('User-Agent'),
       status: 'new'

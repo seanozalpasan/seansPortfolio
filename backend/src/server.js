@@ -19,7 +19,8 @@ connectDB();
 // Security Middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  frameguard: { action: 'sameorigin' } // Allow iframe embedding from same origin
+  // Disable frameguard to allow iframe embedding from frontend
+  frameguard: false
 }));
 app.use(mongoSanitize());
 

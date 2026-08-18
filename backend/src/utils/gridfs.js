@@ -65,29 +65,6 @@ export const uploadToGridFS = async (buffer, filename, contentType, metadata = {
   });
 };
 
-// Download file from GridFS
-export const downloadFromGridFS = async (fileId, bucketName = 'images') => {
-  const bucket = bucketName === 'resume' ? getResumeBucket() : getImageBucket();
-
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-
-    const downloadStream = bucket.openDownloadStream(new mongoose.Types.ObjectId(fileId));
-
-    downloadStream.on('data', (chunk) => {
-      chunks.push(chunk);
-    });
-
-    downloadStream.on('error', (error) => {
-      reject(error);
-    });
-
-    downloadStream.on('end', () => {
-      resolve(Buffer.concat(chunks));
-    });
-  });
-};
-
 // Delete file from GridFS
 export const deleteFromGridFS = async (fileId, bucketName = 'images') => {
   const bucket = bucketName === 'resume' ? getResumeBucket() : getImageBucket();

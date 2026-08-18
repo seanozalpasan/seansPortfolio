@@ -94,8 +94,7 @@ const About = () => {
     <div className="about-page">
       <section className="about-hero">
         <div className="about-hero-content">
-          <h1>hi im sean</h1>
-          <p className="about-tagline">Computer Engineer</p>
+          <h1>Hi! I'm Sean Ozalpasan</h1>
         </div>
       </section>
 
@@ -104,16 +103,15 @@ const About = () => {
           {/* About Text */}
           <div className="about-section">
             <h2>Who I Am</h2>
-            <p>My name is <strong>Sean Ozalpasan</strong></p>
             <p>I attend <strong>Tufts University</strong> in Boston, MA</p>
-            <p>I enjoy programming, Turkish-American activism, sailing, and hanging with friends 🤞</p>
+            <p>My passions are Embedded Systems, Turkish-American activism, and hanging with friends 🤞</p>
             <p className="age-display">{age}</p>
           </div>
 
           {/* Photo Carousel */}
           {gallery && gallery.images.length > 0 && (
             <div className="about-section">
-              <h2>Gallery</h2>
+              <h2>Some Photos</h2>
               <div className="carousel-container">
                 <div className="carousel-image-wrapper">
                   <img
@@ -133,39 +131,6 @@ const About = () => {
             </div>
           )}
 
-          {/* Skills Section */}
-          <div className="about-section">
-            <h2>Skills & Technologies</h2>
-            <div className="skills-grid">
-              <div className="skill-category">
-                <h3>Embedded Systems</h3>
-                <ul>
-                  <li>STM32 Microcontrollers</li>
-                  <li>ESP32 </li>
-                  <li>C/C++</li>
-                  <li>CANBus Protocol</li>
-                </ul>
-              </div>
-              {/* <div className="skill-category">
-                <h3>Web Dev</h3>
-                <ul>
-                  <li>Node.js</li>
-                  <li>Express</li>
-                  <li>MongoDB Atlas & Compass</li>
-                  <li>Postman</li>
-                </ul>
-              </div> */}
-              <div className="skill-category">
-                <h3>Tools</h3>
-                <ul>
-                  <li>Git</li>
-                  <li>Docker</li>
-                  <li>Platform IO</li>
-                  <li>Jira</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
     </div>

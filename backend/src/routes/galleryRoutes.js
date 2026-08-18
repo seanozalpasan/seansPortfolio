@@ -7,6 +7,7 @@ import {
   updateGalleryImage,
   removeImageFromGallery,
   reorderGalleryImages,
+  reorderGalleries,
   updateGalleryMetadata,
   updateGallerySettings
 } from '../controllers/galleryController.js';
@@ -19,6 +20,9 @@ router.get('/', getGalleries);
 router.get('/:name', getGalleries);
 
 // Protected routes (Admin only)
+// NOTE: '/reorder' must stay above the '/:name' routes so it is never
+// interpreted as a gallery named "reorder".
+router.patch('/reorder', protect, authorize('admin'), reorderGalleries);
 router.post('/', protect, authorize('admin'), createGallery);
 router.put('/:name', protect, authorize('admin'), updateGalleryMetadata);
 router.delete('/:name', protect, authorize('admin'), deleteGallery);

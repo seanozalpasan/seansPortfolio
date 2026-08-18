@@ -69,6 +69,14 @@ const gallerySchema = new mongoose.Schema({
       default: false
     }
   },
+  // Deliberately has no default. Mongoose writes schema defaults back to the
+  // document on any .save(), so a default here would stamp order: 0 onto an
+  // existing gallery the first time it was edited — silently moving it, since
+  // MongoDB sorts a missing field ahead of 0. createGallery sets this
+  // explicitly instead, and galleries predating this field sort by createdAt.
+  order: {
+    type: Number
+  },
   active: {
     type: Boolean,
     default: true
@@ -80,6 +88,7 @@ const gallerySchema = new mongoose.Schema({
 // Index for efficient queries
 gallerySchema.index({ name: 1 }, { unique: true });
 gallerySchema.index({ active: 1 });
+gallerySchema.index({ order: 1 });
 
 const Gallery = mongoose.model('Gallery', gallerySchema);
 

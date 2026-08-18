@@ -24,11 +24,19 @@ export const createGallery = async (req, res) => {
       });
     }
 
+    // Place new galleries last. Falling back to the document count covers the
+    // case where no gallery has been given an explicit order yet.
+    const highestOrdered = await Gallery.findOne({}).sort({ order: -1 }).select('order').lean();
+    const nextOrder = typeof highestOrdered?.order === 'number'
+      ? highestOrdered.order + 1
+      : await Gallery.countDocuments();
+
     const gallery = await Gallery.create({
       name: name.toLowerCase(),
       displayName,
       description: description || '',
       images: [],
+      order: nextOrder,
       settings: {
         carouselSpeed: 1600,
         displayType: 'carousel',
@@ -103,7 +111,11 @@ export const getGalleries = async (req, res) => {
       query.active = active === 'true';
     }
 
-    let galleries = await Gallery.find(query);
+    // `order` drives the gallery sequence shown in the admin panel and on the
+    // public hobbies page. Galleries created before the `order` field existed
+    // have no value stored, so they all tie on the first key and fall back to
+    // `createdAt` — which preserves the order they were originally displayed in.
+    let galleries = await Gallery.find(query).sort({ order: 1, createdAt: 1 });
 
     // Sort images by order field
     galleries = galleries.map(gallery => {
@@ -327,6 +339,52 @@ export const reorderGalleryImages = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to reorder images'
+    });
+  }
+};
+
+// @desc    Reorder the galleries themselves
+// @route   PATCH /api/galleries/reorder
+// @access  Private (Admin)
+export const reorderGalleries = async (req, res) => {
+  try {
+    const { galleries } = req.body; // Array of { name, order }
+
+    if (!Array.isArray(galleries)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Galleries must be an array'
+      });
+    }
+
+    const hasInvalidEntry = galleries.some(
+      gallery => !gallery ||
+        typeof gallery.name !== 'string' ||
+        !Number.isFinite(gallery.order)
+    );
+
+    if (hasInvalidEntry) {
+      return res.status(400).json({
+        success: false,
+        message: 'Each entry must have a name (string) and an order (number)'
+      });
+    }
+
+    await Promise.all(
+      galleries.map(({ name, order }) =>
+        Gallery.updateOne({ name: name.toLowerCase() }, { $set: { order } })
+      )
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Galleries reordered successfully'
+    });
+  } catch (error) {
+    console.error('Reorder galleries error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reorder galleries'
     });
   }
 };

@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react';
 import { galleryAPI, imageAPI } from '../../services/api';
 import './GalleriesPage.css';
 
+// The "about" gallery feeds the About page, not the public hobbies grid, so it
+// is pinned to the front of the tab strip and excluded from drag reordering.
+const LOCKED_GALLERY = 'about';
+
+const withLockedFirst = (list) => [
+  ...list.filter(gallery => gallery.name === LOCKED_GALLERY),
+  ...list.filter(gallery => gallery.name !== LOCKED_GALLERY)
+];
+
 function GalleriesPage() {
   const [galleries, setGalleries] = useState([]);
   const [activeGallery, setActiveGallery] = useState(null);
@@ -16,6 +25,8 @@ function GalleriesPage() {
   const [newGalleryDisplayName, setNewGalleryDisplayName] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [editGalleryData, setEditGalleryData] = useState({ name: '', displayName: '', description: '' });
+  const [draggedName, setDraggedName] = useState(null);
+  const [dragOverName, setDragOverName] = useState(null);
 
   // Fetch all galleries on mount
   useEffect(() => {
@@ -124,6 +135,62 @@ function GalleriesPage() {
       fetchGalleries();
     } catch (err) {
       setError('Failed to update gallery: ' + err.response?.data?.message || err.message);
+    }
+  };
+
+  const handleTabDragStart = (e, name) => {
+    setDraggedName(name);
+    e.dataTransfer.effectAllowed = 'move';
+    // Firefox refuses to start a drag unless some data is set.
+    e.dataTransfer.setData('text/plain', name);
+  };
+
+  const handleTabDragOver = (e, name) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (name !== dragOverName) {
+      setDragOverName(name);
+    }
+  };
+
+  const handleTabDragEnd = () => {
+    setDraggedName(null);
+    setDragOverName(null);
+  };
+
+  const handleTabDrop = async (e, targetName) => {
+    e.preventDefault();
+
+    const sourceName = draggedName;
+    setDraggedName(null);
+    setDragOverName(null);
+
+    if (!sourceName || sourceName === targetName) return;
+
+    // Reorder against the same sequence the tabs are rendered from, so what
+    // was on screen is exactly what gets saved.
+    const previousGalleries = galleries;
+    const reordered = withLockedFirst(galleries);
+    const fromIndex = reordered.findIndex(g => g.name === sourceName);
+    const toIndex = reordered.findIndex(g => g.name === targetName);
+
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    const [movedGallery] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, movedGallery);
+
+    // Move the tab immediately, then roll back if the save fails.
+    setGalleries(reordered);
+
+    try {
+      setError('');
+      await galleryAPI.reorderGalleries(
+        reordered.map((gallery, index) => ({ name: gallery.name, order: index }))
+      );
+      setSuccess('Gallery order saved');
+    } catch (err) {
+      setGalleries(previousGalleries);
+      setError('Failed to save gallery order: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -274,38 +341,67 @@ function GalleriesPage() {
 
       {/* Gallery Tabs */}
       <div className="gallery-tabs">
-        {galleries.map(gallery => (
-          <div key={gallery.name} className="gallery-tab-wrapper">
-            <button
-              className={`gallery-tab ${activeGallery === gallery.name ? 'active' : ''}`}
-              onClick={() => setActiveGallery(gallery.name)}
+        {withLockedFirst(galleries).map(gallery => {
+          const isLocked = gallery.name === LOCKED_GALLERY;
+          const classNames = ['gallery-tab-wrapper'];
+
+          if (!isLocked) {
+            classNames.push('is-draggable');
+            if (draggedName === gallery.name) classNames.push('is-dragging');
+            if (dragOverName === gallery.name && draggedName !== gallery.name) {
+              classNames.push('is-drag-over');
+            }
+          }
+
+          return (
+            <div
+              key={gallery.name}
+              className={classNames.join(' ')}
+              draggable={!isLocked}
+              onDragStart={isLocked ? undefined : (e) => handleTabDragStart(e, gallery.name)}
+              onDragOver={isLocked ? undefined : (e) => handleTabDragOver(e, gallery.name)}
+              onDrop={isLocked ? undefined : (e) => handleTabDrop(e, gallery.name)}
+              onDragEnd={isLocked ? undefined : handleTabDragEnd}
             >
-              {gallery.displayName}
-              {currentGallery && activeGallery === gallery.name && (
-                <span className="image-count">
-                  {currentGallery.images?.length || 0}
-                </span>
-              )}
-            </button>
-            <button
-              className="edit-gallery-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                openEditModal(gallery);
-              }}
-              title="Edit gallery"
-            >
-              ✎
-            </button>
-            <button
-              className="delete-gallery-btn"
-              onClick={() => handleDeleteGallery(gallery.name)}
-              title="Delete gallery"
-            >
-              ×
-            </button>
-          </div>
-        ))}
+              <span
+                className={isLocked ? 'tab-handle tab-handle-locked' : 'tab-handle'}
+                title={isLocked
+                  ? 'This gallery is fixed in place'
+                  : 'Drag to reorder galleries'}
+              >
+                {isLocked ? '🔒' : '⠿'}
+              </span>
+              <button
+                className={`gallery-tab ${activeGallery === gallery.name ? 'active' : ''}`}
+                onClick={() => setActiveGallery(gallery.name)}
+              >
+                {gallery.displayName}
+                {currentGallery && activeGallery === gallery.name && (
+                  <span className="image-count">
+                    {currentGallery.images?.length || 0}
+                  </span>
+                )}
+              </button>
+              <button
+                className="edit-gallery-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openEditModal(gallery);
+                }}
+                title="Edit gallery"
+              >
+                ✎
+              </button>
+              <button
+                className="delete-gallery-btn"
+                onClick={() => handleDeleteGallery(gallery.name)}
+                title="Delete gallery"
+              >
+                ×
+              </button>
+            </div>
+          );
+        })}
         <button
           className="gallery-tab new-gallery-btn"
           onClick={() => setShowCreateModal(true)}
@@ -313,6 +409,9 @@ function GalleriesPage() {
           + New Gallery
         </button>
       </div>
+      <p className="reorder-hint">
+        Drag the gallery tabs to change the order they appear in on the public Hobbies page.
+      </p>
 
       {/* Create Gallery Modal */}
       {showCreateModal && (
@@ -441,7 +540,7 @@ function GalleriesPage() {
                 <div key={image.imageId} className="image-card">
                   <div className="image-preview">
                     <img
-                      src={`http://localhost:5001/api/images/${image.imageId}`}
+                      src={imageAPI.getUrl(image.imageId)}
                       alt={image.caption || 'Gallery image'}
                       loading="lazy"
                       style={{ transform: `rotate(${image.rotation || 0}deg)` }}

@@ -57,7 +57,7 @@ const Footer = () => {
 
       <div className="footer-bottom">
         <p className="footer-copyright">
-          © {currentYear} Sean Ozalpasan. All rights reserved.
+          {currentYear} Sean Ozalpasan
         </p>
         <button
           onClick={scrollToTop}

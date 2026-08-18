@@ -67,6 +67,7 @@ export const galleryAPI = {
   updateImage: (name, imageId, data) => api.put(`/galleries/${name}/images/${imageId}`, data),
   removeImage: (name, imageId) => api.delete(`/galleries/${name}/images/${imageId}`),
   reorderImages: (name, images) => api.patch(`/galleries/${name}/reorder`, { images }),
+  reorderGalleries: (galleries) => api.patch('/galleries/reorder', { galleries }),
   updateSettings: (name, settings) => api.put(`/galleries/${name}/settings`, settings),
 };
 

@@ -86,7 +86,7 @@ const gallerySchema = new mongoose.Schema({
 });
 
 // Index for efficient queries
-gallerySchema.index({ name: 1 }, { unique: true });
+// Note: `name` is indexed by `unique: true` on the field itself, above.
 gallerySchema.index({ active: 1 });
 gallerySchema.index({ order: 1 });
 

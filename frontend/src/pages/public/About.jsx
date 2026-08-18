@@ -94,7 +94,7 @@ const About = () => {
     <div className="about-page">
       <section className="about-hero">
         <div className="about-hero-content">
-          <h1>Hi! I'm Sean Ozalpasan</h1>
+          <h1>Hi! I'm Sean</h1>
         </div>
       </section>
 
@@ -111,7 +111,6 @@ const About = () => {
           {/* Photo Carousel */}
           {gallery && gallery.images.length > 0 && (
             <div className="about-section">
-              <h2>Some Photos</h2>
               <div className="carousel-container">
                 <div className="carousel-image-wrapper">
                   <img

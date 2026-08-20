@@ -228,6 +228,7 @@ function GalleriesPage() {
       // Prepare images array for gallery
       const imagesToAdd = uploadedImages.map(img => ({
         imageId: img.imageId,
+        thumbnailId: img.thumbnailId,
         caption: '',
         metadata: {}
       }));

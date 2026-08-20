@@ -173,9 +173,9 @@ const Hobbies = () => {
                 >
                   <div className="preview-images">
                     {gallery.images.slice(0, 4).map((image, index) => (
-                      <div key={image._id} className={`preview-image preview-image-${index + 1}`}>
+                      <div key={image.imageId} className={`preview-image preview-image-${index + 1}`}>
                         <img
-                          src={imageAPI.getUrl(image.imageId)}
+                          src={imageAPI.getUrl(image.thumbnailId || image.imageId)}
                           alt={image.caption || `${gallery.displayName} ${index + 1}`}
                           loading="lazy"
                           style={{ transform: `rotate(${image.rotation || 0}deg)` }}

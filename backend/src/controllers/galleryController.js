@@ -151,7 +151,7 @@ export const getGalleries = async (req, res) => {
 export const addImagesToGallery = async (req, res) => {
   try {
     const { name } = req.params;
-    const { images } = req.body; // Array of { imageId, caption, metadata }
+    const { images } = req.body; // Array of { imageId, thumbnailId, caption, metadata }
 
     if (!Array.isArray(images) || images.length === 0) {
       return res.status(400).json({
@@ -176,6 +176,7 @@ export const addImagesToGallery = async (req, res) => {
 
     const newImages = images.map((img, index) => ({
       imageId: img.imageId,
+      thumbnailId: img.thumbnailId,
       caption: img.caption || '',
       order: currentMaxOrder + 1 + index,
       metadata: img.metadata || {}

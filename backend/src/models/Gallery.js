@@ -6,6 +6,15 @@ const imageInGallerySchema = new mongoose.Schema({
     ref: 'Image',
     required: true
   },
+  // Deliberately has no default, for the same reason as `order` below: mongoose
+  // writes schema defaults back to the document on any .save(), so a default here
+  // would stamp a value onto every existing image the first time its gallery was
+  // edited. Absent means "no thumbnail known" and the public grid falls back to
+  // imageId, so images predating this field keep rendering at full size.
+  thumbnailId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Image'
+  },
   caption: {
     type: String,
     trim: true,
@@ -86,7 +95,7 @@ const gallerySchema = new mongoose.Schema({
 });
 
 // Index for efficient queries
-gallerySchema.index({ name: 1 }, { unique: true });
+// Note: `name` is indexed by `unique: true` on the field itself, above.
 gallerySchema.index({ active: 1 });
 gallerySchema.index({ order: 1 });
 

@@ -3,12 +3,6 @@ import { initGridFS } from '../utils/gridfs.js';
 
 const connectDB = async () => {
   try {
-    // Set DNS order preference to IPv4
-    if (typeof require !== 'undefined') {
-      const dns = require('dns');
-      dns.setDefaultResultOrder?.('ipv4first');
-    }
-
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,

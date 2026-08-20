@@ -38,14 +38,10 @@ const ProjectsPage = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching projects...');
 
       const response = await api.get('/projects');
-      console.log('Projects response:', response.data);
-
       const projectsData = response.data.data || [];
       setProjects(projectsData);
-      console.log(`Loaded ${projectsData.length} projects`);
     } catch (err) {
       console.error('Error fetching projects:', err);
       setError(err.response?.data?.message || 'Failed to load projects');
@@ -75,19 +71,16 @@ const ProjectsPage = () => {
   const handleDetailImagesChange = (e) => {
     const files = Array.from(e.target.files);
     setDetailFiles(files);
-    console.log(`Selected ${files.length} detail images`);
   };
 
   // Upload thumbnail image
   const uploadThumbnail = async () => {
     if (!thumbnailFile) {
-      console.log('No thumbnail file to upload');
       return null;
     }
 
     try {
       setUploadingThumbnail(true);
-      console.log('Uploading thumbnail...');
 
       const formData = new FormData();
       formData.append('image', thumbnailFile);
@@ -96,7 +89,6 @@ const ProjectsPage = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      console.log('Thumbnail uploaded:', response.data);
       return response.data.data.imageId;
     } catch (err) {
       console.error('Error uploading thumbnail:', err);
@@ -109,13 +101,11 @@ const ProjectsPage = () => {
   // Upload detail images
   const uploadDetailImages = async () => {
     if (detailFiles.length === 0) {
-      console.log('No detail images to upload');
       return [];
     }
 
     try {
       setUploadingDetails(true);
-      console.log(`Uploading ${detailFiles.length} detail images...`);
 
       const formData = new FormData();
       detailFiles.forEach(file => {
@@ -126,7 +116,6 @@ const ProjectsPage = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      console.log('Detail images uploaded:', response.data);
       return response.data.data.images.map(img => img.imageId);
     } catch (err) {
       console.error('Error uploading detail images:', err);
@@ -141,8 +130,6 @@ const ProjectsPage = () => {
     e.preventDefault();
 
     try {
-      console.log('Submitting project form...', editingProject ? 'EDIT' : 'CREATE');
-
       // Upload images first
       const thumbnailId = editingProject?.thumbnailImageId || await uploadThumbnail();
 
@@ -152,7 +139,6 @@ const ProjectsPage = () => {
       }
 
       const detailImageIds = await uploadDetailImages();
-      console.log('All images uploaded. Thumbnail:', thumbnailId, 'Details:', detailImageIds);
 
       // Prepare project data
       const projectData = {
@@ -164,18 +150,12 @@ const ProjectsPage = () => {
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
       };
 
-      console.log('Project data:', projectData);
-
       if (editingProject) {
-        console.log('Updating project:', editingProject._id);
         await api.put(`/projects/${editingProject._id}`, projectData);
       } else {
-        console.log('Creating new project');
-        const response = await api.post('/projects', projectData);
-        console.log('Project created:', response.data);
+        await api.post('/projects', projectData);
       }
 
-      console.log('Project saved successfully, refreshing list...');
       await fetchProjects();
       resetForm();
       setShowForm(false);
@@ -210,7 +190,6 @@ const ProjectsPage = () => {
 
   // Start editing a project
   const startEdit = (project) => {
-    console.log('Editing project:', project._id);
     setEditingProject(project);
     setFormData({
       title: project.title,
@@ -230,9 +209,7 @@ const ProjectsPage = () => {
   // Delete project
   const deleteProject = async (id) => {
     try {
-      console.log('Deleting project:', id);
       await api.delete(`/projects/${id}`);
-      console.log('Project deleted, refreshing list...');
       await fetchProjects();
       setShowDeleteConfirm(null);
     } catch (err) {
@@ -244,9 +221,7 @@ const ProjectsPage = () => {
   // Toggle published status
   const togglePublish = async (id) => {
     try {
-      console.log('Toggling publish status for project:', id);
       await api.patch(`/projects/${id}/toggle-publish`);
-      console.log('Publish status toggled, refreshing list...');
       await fetchProjects();
     } catch (err) {
       console.error('Error toggling publish:', err);
@@ -261,8 +236,6 @@ const ProjectsPage = () => {
 
     if (targetIndex < 0 || targetIndex >= newProjects.length) return;
 
-    console.log(`Moving project from ${index} to ${targetIndex}`);
-
     // Swap projects
     [newProjects[index], newProjects[targetIndex]] = [newProjects[targetIndex], newProjects[index]];
 
@@ -272,11 +245,8 @@ const ProjectsPage = () => {
       order: idx
     }));
 
-    console.log('Reordered projects:', reorderedProjects);
-
     try {
       await api.patch('/projects/reorder', { projects: reorderedProjects });
-      console.log('Projects reordered, refreshing list...');
       await fetchProjects();
     } catch (err) {
       console.error('Error reordering projects:', err);

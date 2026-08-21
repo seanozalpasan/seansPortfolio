@@ -1,5 +1,6 @@
 import { Project } from '../models/index.js';
 import mongoose from 'mongoose';
+import { deleteFromGridFS, getImageBucket } from '../utils/gridfs.js';
 
 // @desc    Get all projects
 // @route   GET /api/projects
@@ -147,6 +148,28 @@ export const createProject = async (req, res) => {
   }
 };
 
+// Permanently remove detail images, and the thumbnails generated for them,
+// from GridFS. Failures are logged but never rethrown: the project document has
+// already been updated by the time this runs, so one unreachable file must not
+// turn a successful save into an error response.
+const deleteDetailImages = async (imageIds) => {
+  for (const imageId of imageIds) {
+    try {
+      const thumbnails = await getImageBucket()
+        .find({ 'metadata.parentImageId': new mongoose.Types.ObjectId(imageId) })
+        .toArray();
+
+      for (const thumbnail of thumbnails) {
+        await deleteFromGridFS(thumbnail._id);
+      }
+
+      await deleteFromGridFS(imageId);
+    } catch (error) {
+      console.error(`Failed to delete detail image ${imageId}:`, error);
+    }
+  }
+};
+
 // @desc    Update project
 // @route   PUT /api/projects/:id
 // @access  Private (Admin)
@@ -160,6 +183,12 @@ export const updateProject = async (req, res) => {
         message: 'Invalid project ID'
       });
     }
+
+    // Capture the stored detail images before the update, so any the client
+    // dropped can be deleted from GridFS once the save succeeds.
+    const previous = Array.isArray(req.body.detailImageIds)
+      ? await Project.findById(id).select('detailImageIds').lean()
+      : null;
 
     const project = await Project.findByIdAndUpdate(
       id,
@@ -175,6 +204,15 @@ export const updateProject = async (req, res) => {
         success: false,
         message: 'Project not found'
       });
+    }
+
+    if (previous) {
+      const kept = new Set(req.body.detailImageIds.map(String));
+      const removed = (previous.detailImageIds || [])
+        .map(String)
+        .filter((imageId) => !kept.has(imageId));
+
+      await deleteDetailImages(removed);
     }
 
     res.status(200).json({

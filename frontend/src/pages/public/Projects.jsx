@@ -158,6 +158,9 @@ const Projects = () => {
                   </div>
                   {project.thumbnailImageId && (
                     <div className="project-thumbnail">
+                      {project.featured && (
+                        <span className="project-featured-badge">Featured</span>
+                      )}
                       <img
                         src={imageAPI.getUrl(project.thumbnailImageId)}
                         alt={project.title}

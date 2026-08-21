@@ -104,7 +104,7 @@ const About = () => {
           <div className="about-section">
             <h2>Who I Am</h2>
             <p>I attend <strong>Tufts University</strong> in Boston, MA</p>
-            <p>My passions are Embedded Systems, Turkish-American activism, and hanging with friends 🤞</p>
+            <p>My passions: Embedded Systems, Turkish-American activism, and hanging with friends&nbsp;🤞</p>
             <p className="age-display">{age}</p>
           </div>
 

@@ -101,6 +101,7 @@
 }
 
 .project-thumbnail {
+  position: relative;
   width: 175px;
   height: 175px;
   overflow: hidden;
@@ -115,6 +116,21 @@
   object-fit: contain;
   transition: transform 0.3s ease;
   background: transparent;
+}
+
+/* Featured marker - mirrors .badge-featured in the admin panel */
+.project-featured-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  background-color: rgba(255, 215, 0, 0.9);
+  color: #000;
 }
 
 .project-info {
@@ -221,7 +237,11 @@
   max-width: 1200px;
   width: 80%;
   max-height: 80vh;
-  overflow-y: auto;
+  /* Scrolling lives on .modal-content so the scrollbar cannot square off
+     the rounded right-hand corners of this box. */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   position: relative;
   margin: auto;
   padding: 2rem;
@@ -261,6 +281,15 @@
   width: 100% !important;
   max-width: none !important;
   border: none !important;
+}
+
+/* Scoped to the project modal only - `.modal-content` is a global class that
+   the admin Galleries and Analytics modals also use. */
+.project-modal .modal-content {
+  overflow-y: auto;
+  /* Required so this flex child may shrink below its content height
+     and actually scroll, instead of overflowing the clipped parent. */
+  min-height: 0;
 }
 
 .modal-title {

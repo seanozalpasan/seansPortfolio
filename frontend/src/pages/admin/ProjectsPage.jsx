@@ -30,6 +30,7 @@ const ProjectsPage = () => {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [detailFiles, setDetailFiles] = useState([]);
+  const [existingDetailImages, setExistingDetailImages] = useState([]);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [uploadingDetails, setUploadingDetails] = useState(false);
 
@@ -125,6 +126,12 @@ const ProjectsPage = () => {
     }
   };
 
+  // Queue an already-saved detail image for removal. Nothing is deleted until
+  // the form is submitted.
+  const removeExistingDetailImage = (imageId) => {
+    setExistingDetailImages(prev => prev.filter(id => id !== imageId));
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -145,7 +152,7 @@ const ProjectsPage = () => {
         ...formData,
         thumbnailImageId: thumbnailId,
         detailImageIds: editingProject
-          ? [...(editingProject.detailImageIds || []), ...detailImageIds]
+          ? [...existingDetailImages, ...detailImageIds]
           : detailImageIds,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
       };
@@ -185,6 +192,7 @@ const ProjectsPage = () => {
     setThumbnailFile(null);
     setThumbnailPreview(null);
     setDetailFiles([]);
+    setExistingDetailImages([]);
     setEditingProject(null);
   };
 
@@ -203,6 +211,7 @@ const ProjectsPage = () => {
       metadata: project.metadata || { date: '', organization: '', location: '' }
     });
     setThumbnailPreview(`${import.meta.env.VITE_API_URL}/images/${project.thumbnailImageId}`);
+    setExistingDetailImages(project.detailImageIds || []);
     setShowForm(true);
   };
 
@@ -413,6 +422,35 @@ const ProjectsPage = () => {
 
               <div className="form-group">
                 <label>Detail Images (optional, multiple)</label>
+                {editingProject && (
+                  existingDetailImages.length > 0 ? (
+                    <>
+                      <div className="detail-images-grid">
+                        {existingDetailImages.map((imageId) => (
+                          <div key={imageId} className="detail-image-item">
+                            <img
+                              src={`${import.meta.env.VITE_API_URL}/images/${imageId}`}
+                              alt="Detail"
+                            />
+                            <button
+                              type="button"
+                              className="detail-image-remove"
+                              onClick={() => removeExistingDetailImage(imageId)}
+                              title="Remove this image"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="file-count">
+                        Removals are applied when you save the project.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="file-count">No detail images yet</p>
+                  )
+                )}
                 <input
                   type="file"
                   accept="image/*"
